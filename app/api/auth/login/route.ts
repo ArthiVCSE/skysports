@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    return NextResponse.json({ message: "Logged in successfully" });
+    return NextResponse.json({ message: "Logged in successfully", token }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

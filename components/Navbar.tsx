@@ -1,10 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useCart } from "@/app/context/CartContext";
 import {
   AppBar, Toolbar, Typography, IconButton, Badge,
   Drawer, List, ListItem, ListItemText, Box, InputBase, Button,
 } from "@mui/material";
+"use client";
+import { useAuth } from "@/app/context/MockAuthContext";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SearchIcon from "@mui/icons-material/Search";
@@ -18,10 +21,13 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const { state } = useCart();
+  const { user, logout } = useAuth();
+  const itemCount = state.items.reduce((total, item) => total + item.quantity, 0);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <>
+    <nav>
       <AppBar position="sticky" sx={{ bgcolor: "#0f172a", boxShadow: "none", borderBottom: "1px solid #1e293b" }}>
         <Toolbar className="flex justify-between gap-4">
           {/* Logo */}
@@ -48,13 +54,21 @@ export default function Navbar() {
             <InputBase placeholder="Search products..." sx={{ color: "#e2e8f0", fontSize: 14, width: "100%" }} />
           </Box>
 
+            {user ? (
+              <Button variant="text" onClick={logout} sx={{ color: "#fff" }}>Logout</Button>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm text-orange-400 hover:text-orange-300 no-underline mr-4">Login</Link>
+                <Link href="/register" className="text-sm text-orange-400 hover:text-orange-300 no-underline">Register</Link>
+              </>
+            )}
+
           {/* Cart + Auth + Menu */}
           <Box className="flex items-center gap-1">
-            <Box className="hidden md:flex items-center gap-1">
-            </Box>
+            <Box className="hidden md:flex items-center gap-1" />
             <Link href="/cart">
               <IconButton>
-                <Badge badgeContent={3} color="error">
+                <Badge badgeContent={itemCount} color="error">
                   <ShoppingCartIcon sx={{ color: "#f97316" }} />
                 </Badge>
               </IconButton>
@@ -77,6 +91,6 @@ export default function Navbar() {
           ))}
         </List>
       </Drawer>
-    </>
+    </nav>
   );
 }
