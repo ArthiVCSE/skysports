@@ -7,6 +7,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import EmailIcon from "@mui/icons-material/Email";
 import LogoutIcon from "@mui/icons-material/Logout";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
 const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menu = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin" },
     { text: "Products", icon: <InventoryIcon />, path: "/admin/products" },
+    { text: "Orders", icon: <LocalShippingIcon />, path: "/admin/orders" },
     { text: "Messages", icon: <EmailIcon />, path: "/admin/messages" },
   ];
 

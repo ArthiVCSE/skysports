@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardActions, Button, Typography, Chip, Rating, IconButton } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
 
 export interface Product {
   id: number;
@@ -18,9 +21,32 @@ export interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { dispatch } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
+
+  const handleAddToCart = () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    dispatch({
+      type: "ADD_ITEM",
+      payload: {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        category: product.category,
+        emoji: product.emoji,
+        imageUrl: product.imageUrl,
+      },
+    });
+  };
 
   return (
     <Card sx={{
@@ -42,7 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {product.imageUrl ? (
           <img src={product.imageUrl} alt={product.name} className="object-cover w-full h-full" />
         ) : (
-          <div className="text-slate-500">No Image</div>
+          <div className="text-6xl flex items-center justify-center h-full">{product.emoji || "🛒"}</div>
         )}
       </div>
 
@@ -69,7 +95,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <CardActions sx={{ px: 2, pb: 2, gap: 1 }}>
         <Button variant="contained" size="small" startIcon={<ShoppingCartIcon />}
-          sx={{ bgcolor: "#f97316", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 2, flex: 1, textTransform: "none", fontWeight: 600 }}>
+          onClick={handleAddToCart}
+          sx={{ bgcolor: "#f97316", color: "#fff", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 2, flex: 1, textTransform: "none", fontWeight: 600 }}>
           Add to Cart
         </Button>
         <Link href={`/products/${product.id}`} className="no-underline flex-1">

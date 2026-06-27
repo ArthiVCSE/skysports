@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { getModel } from "@/lib/mongoose";
 
 export interface IOrderItem {
-  productId: mongoose.Schema.Types.ObjectId;
+  productId: string;
   name: string;
   price: number;
   quantity: number;
@@ -25,7 +25,7 @@ const OrderSchema = new mongoose.Schema<IOrder>(
     userId: { type: String, required: true, index: true },
     items: [
       {
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+        productId: { type: String, required: true },
         name: { type: String, required: true },
         price: { type: Number, required: true },
         quantity: { type: Number, required: true, min: 1 },

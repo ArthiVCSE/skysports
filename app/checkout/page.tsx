@@ -1,16 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, Button, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
+import { useCart } from "@/app/context/CartContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { state: { items: cart }, dispatch } = useCart();
   const [deliveryDate, setDeliveryDate] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 75 ? 0 : 9.99;
+  const total = subtotal + shipping;
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,21 +32,29 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (cart.length === 0) {
+      alert("Your cart is empty");
+      router.push("/cart");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
-          userId: user.id,
           deliveryDate,
           address,
-          totalAmount: 999.00, // Hardcoded for demo matching cart total
+          totalAmount: Number(total.toFixed(2)),
           paymentMethod: "COD",
-          items: [
-            // Dummy item
-            { productId: "60c72b2f9b1d8b001c8e4d3a", name: "Demo Product", price: 999.00, quantity: 1 }
-          ]
+          items: cart.map((item) => ({
+            productId: String(item.id),
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
         })
       });
 
@@ -43,6 +63,7 @@ export default function CheckoutPage() {
       }
 
       setSuccess(true);
+      dispatch({ type: "CLEAR_CART" });
     } catch (error) {
       console.error(error);
       alert("Failed to place order. Please try again.");
@@ -50,6 +71,10 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || !user) {
+    return <Box sx={{ p: 6, textAlign: "center", color: "#94a3b8" }}>Please sign in to checkout.</Box>;
+  }
 
   if (success) {
     return (
@@ -80,7 +105,7 @@ export default function CheckoutPage() {
             placeholder="Enter your full address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#0f172a", color: "#e2e8f0", borderRadius: 2, "& fieldset": { borderColor: "#334155" } } }}
+            sx={{ input: { color: "#fff" }, textarea: { color: "#fff" }, label: { color: "#94a3b8" }, "& .MuiOutlinedInput-root": { bgcolor: "#0f172a", color: "#e2e8f0", borderRadius: 2, "& fieldset": { borderColor: "#334155" } } }}
           />
         </Box>
 
@@ -92,7 +117,7 @@ export default function CheckoutPage() {
             type="date"
             value={deliveryDate}
             onChange={(e) => setDeliveryDate(e.target.value)}
-            sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#0f172a", color: "#e2e8f0", borderRadius: 2, "& fieldset": { borderColor: "#334155" } }, "& input[type='date']::-webkit-calendar-picker-indicator": { filter: "invert(1)" } }}
+            sx={{ input: { color: "#fff" }, label: { color: "#94a3b8" }, "& .MuiOutlinedInput-root": { bgcolor: "#0f172a", color: "#e2e8f0", borderRadius: 2, "& fieldset": { borderColor: "#334155" } }, "& input[type='date']::-webkit-calendar-picker-indicator": { filter: "invert(1)" } }}
           />
         </Box>
 

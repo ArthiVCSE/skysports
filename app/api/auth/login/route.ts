@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         name: email.split('@')[0],
         email,
         password: hashedPassword,
-        role: 'user',
+        role: email === 'admin@skysports.com' ? 'admin' : 'user',
       });
       await newUser.save();
       user = await User.findOne({ email });
@@ -33,6 +33,12 @@ export async function POST(request: Request) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      }
+      
+      // Auto-upgrade to admin for testing
+      if (email === 'admin@skysports.com' && user.role !== 'admin') {
+        user.role = 'admin';
+        await user.save();
       }
     }
 

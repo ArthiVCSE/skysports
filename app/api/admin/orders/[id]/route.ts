@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongoose";
-import { Product } from "@/lib/models/Product";
+import Order from "@/lib/models/Order";
 import { User } from "@/model/User";
+import { getErrorMessage } from "@/lib/errors";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { getErrorMessage } from "@/lib/errors";
 import type { JwtPayload } from "@/lib/types/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
@@ -15,10 +15,7 @@ async function requireAdmin() {
     cookieStore.get("admin_token")?.value ||
     cookieStore.get("token")?.value;
 
-  if (!token) {
-    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-
+  if (!token) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     await dbConnect();
@@ -32,41 +29,29 @@ async function requireAdmin() {
   }
 }
 
-// GET — public, no auth needed
-export async function GET(request: Request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
-
-    const query: Record<string, unknown> = {};
-    if (category && category !== "All") {
-      query.category = category;
-    }
-
-    const products = await Product.find(query).sort({ id: 1 });
-    return NextResponse.json(products);
-  } catch (error: unknown) {
-    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
-  }
-}
-
-// POST — admin only
-export async function POST(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const auth = await requireAdmin();
     if (auth.error) return auth.error;
 
     await dbConnect();
+    const { id } = await params;
     const body = await request.json();
 
-    const lastProduct = await Product.findOne().sort({ id: -1 });
-    const nextId = lastProduct ? (lastProduct.id as number) + 1 : 1;
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status: body.status },
+      { new: true }
+    );
 
-    const newProduct = new Product({ ...body, id: nextId });
-    await newProduct.save();
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
-    return NextResponse.json(newProduct, { status: 201 });
+    return NextResponse.json({ success: true, order }, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }

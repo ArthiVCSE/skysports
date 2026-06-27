@@ -7,11 +7,11 @@ import type { JwtPayload } from "@/lib/types/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
-function getUserIdFromToken(request: Request): string | null {
+async function getUserIdFromToken(request: Request): Promise<string | null> {
   try {
     // Attempt to get token from Authorization header or cookies
-    const cookieStore = cookies();
-    let token = cookieStore.get("token")?.value;
+    const cookieStore = await cookies();
+    let token = cookieStore.get("admin_token")?.value || cookieStore.get("token")?.value;
     
     if (!token) {
       const authHeader = request.headers.get("authorization");
@@ -32,7 +32,7 @@ function getUserIdFromToken(request: Request): string | null {
 export async function GET(request: Request) {
   try {
     await dbConnect();
-    const userId = getUserIdFromToken(request);
+    const userId = await getUserIdFromToken(request);
     
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const userId = getUserIdFromToken(request);
+    const userId = await getUserIdFromToken(request);
     
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

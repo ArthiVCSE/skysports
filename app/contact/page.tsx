@@ -7,8 +7,8 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 
 const contactInfo = [
-  { icon: <LocationOnIcon />, label: "Address", value: "123 Sport Ave, Athletic City, AC 10001" },
-  { icon: <PhoneIcon />, label: "Phone", value: "+1 (555) 000-1234" },
+  { icon: <LocationOnIcon />, label: "Address", value: " 1234 MG Road, Bengaluru, Karnataka, India – 560001" },
+  { icon: <PhoneIcon />, label: "Phone", value: "+91 98765 43210" },
   { icon: <EmailIcon />, label: "Email", value: "support@skysports.com" },
 ];
 
@@ -77,15 +77,16 @@ export default function ContactPage() {
             </div>
 
             {/* Map */}
-            <div className="mt-10 bg-slate-800 border border-slate-700 rounded-2xl h-64 overflow-hidden relative">
+            <div className="mt-10 bg-slate-800 border border-slate-700 rounded-2xl h-72 overflow-hidden relative">
               <iframe
-                title="map"
+                title="SkySports Location - MG Road, Bengaluru"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.9757923463144!2d77.61563749999999!3d12.9734001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae16838ea960db%3A0x8230ec927fc745ab!2s1234%2C%20Mahatma%20Gandhi%20Rd%2C%20Halasuru%2C%20Yellappa%20Chetty%20Layout%2C%20Sivanchetti%20Gardens%2C%20Bengaluru%2C%20Karnataka%20560001!5e0!3m2!1sen!2sin!4v1782554596496!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
-                frameBorder="0"
                 style={{ border: 0 }}
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-74.015,40.710,-73.995,40.720&amp;layer=mapnik&amp;marker=40.715,-74.005"
                 allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
               ></iframe>
             </div>
           </div>

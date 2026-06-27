@@ -1,14 +1,19 @@
 "use client";
 import { useState, use, useEffect } from "react";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Typography, Button, Rating, Chip, Divider, Tabs, Tab, CircularProgress } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCart } from "@/app/context/CartContext";
+import type { Product } from "@/components/ProductCard";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const [product, setProduct] = useState<any>(null);
+  const { user } = useAuth();
+  const { dispatch } = useCart();
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState(0);
@@ -36,6 +41,26 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
+
+  const handleAddToCart = () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    dispatch({
+      type: "ADD_ITEM",
+      payload: {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: qty,
+        category: product.category,
+        emoji: product.emoji,
+        imageUrl: product.imageUrl,
+      },
+    });
+  };
 
   return (
     <main className="bg-slate-900 min-h-screen text-white py-12 px-6">
@@ -85,7 +110,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             <div className="flex gap-3">
               <Button variant="contained" startIcon={<ShoppingCartIcon />} size="large" fullWidth
-                sx={{ bgcolor: "#f97316", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 3, textTransform: "none", fontWeight: 700 }}>
+                onClick={handleAddToCart}
+                sx={{ bgcolor: "#f97316", color: "#fff", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 3, textTransform: "none", fontWeight: 700 }}>
                 Add to Cart
               </Button>
               <Button variant="outlined" size="large"

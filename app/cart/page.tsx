@@ -1,14 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Typography, Button, Divider, IconButton, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useCart } from "@/app/context/CartContext";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
   const { state: { items: cart }, dispatch } = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [coupon, setCoupon] = useState("");
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) {
+    return <div className="min-h-screen bg-slate-900 p-8 text-center text-slate-300">Please sign in to view your cart.</div>;
+  }
 
   const updateQty = (id: number, quantity: number) => {
     if (quantity < 1) return;

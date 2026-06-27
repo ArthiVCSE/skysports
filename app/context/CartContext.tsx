@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
 import { useAuth } from './AuthContext';
 
 export interface CartItem {
@@ -7,6 +7,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  category?: string;
   emoji?: string;
   imageUrl?: string;
 }
@@ -60,40 +61,41 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
   const { user } = useAuth();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const loadedUserIdRef = useRef<string | null>(null);
 
   // Fetch cart from DB on login/load
   useEffect(() => {
     if (user) {
+      loadedUserIdRef.current = null;
       fetch('/api/cart')
         .then(res => res.json())
         .then(data => {
+          loadedUserIdRef.current = user.id;
           if (data.success && data.cart) {
             dispatch({ type: 'SET_CART', payload: data.cart.items });
           }
-          setIsInitialized(true);
         })
         .catch(err => {
           console.error("Failed to fetch cart", err);
-          setIsInitialized(true);
+          loadedUserIdRef.current = user.id;
         });
     } else {
       // Guest user or logged out
+      loadedUserIdRef.current = null;
       dispatch({ type: 'CLEAR_CART' });
-      setIsInitialized(true);
     }
   }, [user]);
 
   // Sync cart to DB on changes
   useEffect(() => {
-    if (user && isInitialized) {
+    if (user && loadedUserIdRef.current === user.id) {
       fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: state.items }),
       }).catch(console.error);
     }
-  }, [state.items, user, isInitialized]);
+  }, [state.items, user]);
 
   return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;
 };

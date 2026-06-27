@@ -56,6 +56,11 @@ export default function Navbar() {
 
             {user ? (
               <Box className="flex items-center gap-4">
+                {user.role === 'admin' && (
+                  <Link href="/admin" className="text-sm text-blue-400 hover:text-blue-300 no-underline font-medium border border-blue-400/30 px-2 py-1 rounded">
+                    Admin Panel
+                  </Link>
+                )}
                 <Link href="/profile" className="text-sm text-orange-400 hover:text-orange-300 no-underline font-medium">Profile</Link>
                 <Button variant="text" onClick={logout} sx={{ color: "#fff", textTransform: "none", minWidth: "auto", p: 0, fontWeight: 500 }}>Logout</Button>
               </Box>

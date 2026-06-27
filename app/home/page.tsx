@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { Button, Typography, Chip } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -19,14 +18,7 @@ const perks = [
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!authLoading && user === null) {
-      router.push("/login");
-    }
-  }, [user, authLoading, router]);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetch("/api/products")
@@ -40,9 +32,6 @@ export default function HomePage() {
         setLoading(false);
       });
   }, []);
-
-  // Avoid flashing home content while redirecting
-  if (authLoading || user === null) return null;
 
   return (
     <main className="bg-slate-900 min-h-screen text-white">
@@ -68,12 +57,22 @@ export default function HomePage() {
                   Shop Now
                 </Button>
               </Link>
-              <Link href="/about">
-                <Button variant="outlined" size="large"
-                  sx={{ borderColor: "#334155", color: "#e2e8f0", "&:hover": { borderColor: "#f97316", color: "#f97316" }, borderRadius: 3, px: 4, textTransform: "none" }}>
-                  Our Story
-                </Button>
-              </Link>
+              {!user && (
+                <Link href="/login">
+                  <Button variant="outlined" size="large"
+                    sx={{ borderColor: "#f97316", color: "#f97316", "&:hover": { borderColor: "#ea580c", bgcolor: "rgba(249,115,22,0.05)" }, borderRadius: 3, px: 4, textTransform: "none" }}>
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+              {user && (
+                <Link href="/about">
+                  <Button variant="outlined" size="large"
+                    sx={{ borderColor: "#334155", color: "#e2e8f0", "&:hover": { borderColor: "#f97316", color: "#f97316" }, borderRadius: 3, px: 4, textTransform: "none" }}>
+                    Our Story
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           {/* Hero visual */}
