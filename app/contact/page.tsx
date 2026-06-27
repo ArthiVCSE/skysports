@@ -55,7 +55,7 @@ export default function ContactPage() {
           Contact <span style={{ color: "#f97316" }}>Us</span>
         </Typography>
         <Typography sx={{ color: "#94a3b8", maxWidth: 500, mx: "auto" }}>
-          Have a question or feedback? We'd love to hear from you.
+          Have a question or feedback? We&apos;d love to hear from you.
         </Typography>
       </section>
 
@@ -95,7 +95,7 @@ export default function ContactPage() {
             <Typography variant="h5" sx={{ fontWeight: 800, mb: 6 }}>Send a Message</Typography>
             {submitted ? (
               <Alert severity="success" sx={{ bgcolor: "#14532d", color: "#4ade80", borderRadius: 2 }}>
-                ✅ Message sent! We'll get back to you within 24 hours.
+                ✅ Message sent! We&apos;ll get back to you within 24 hours.
               </Alert>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

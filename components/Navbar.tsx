@@ -6,8 +6,8 @@ import {
   AppBar, Toolbar, Typography, IconButton, Badge,
   Drawer, List, ListItem, ListItemText, Box, InputBase, Button,
 } from "@mui/material";
-"use client";
-import { useAuth } from "@/app/context/MockAuthContext";
+
+import { useAuth } from "@/app/context/AuthContext";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SearchIcon from "@mui/icons-material/Search";
@@ -55,12 +55,12 @@ export default function Navbar() {
           </Box>
 
             {user ? (
-              <Button variant="text" onClick={logout} sx={{ color: "#fff" }}>Logout</Button>
+              <Box className="flex items-center gap-4">
+                <Link href="/profile" className="text-sm text-orange-400 hover:text-orange-300 no-underline font-medium">Profile</Link>
+                <Button variant="text" onClick={logout} sx={{ color: "#fff", textTransform: "none", minWidth: "auto", p: 0, fontWeight: 500 }}>Logout</Button>
+              </Box>
             ) : (
-              <>
-                <Link href="/login" className="text-sm text-orange-400 hover:text-orange-300 no-underline mr-4">Login</Link>
-                <Link href="/register" className="text-sm text-orange-400 hover:text-orange-300 no-underline">Register</Link>
-              </>
+              <Link href="/login" className="text-sm text-orange-400 hover:text-orange-300 no-underline mr-4 font-medium">Sign In</Link>
             )}
 
           {/* Cart + Auth + Menu */}

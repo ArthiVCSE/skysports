@@ -52,7 +52,7 @@ export default function AboutPage() {
               Our <span style={{ color: "#f97316" }}>Mission</span>
             </Typography>
             <Typography sx={{ color: "#94a3b8", lineHeight: 1.9, mb: 3 }}>
-              We believe every athlete deserves the best tools to perform at their peak. That's why we source only the highest quality gear — tested by professionals, approved for everyone.
+              We believe every athlete deserves the best tools to perform at their peak. That&apos;s why we source only the highest quality gear — tested by professionals, approved for everyone.
             </Typography>
             <Typography sx={{ color: "#94a3b8", lineHeight: 1.9 }}>
               From weekend warriors to professional athletes, SkySports is your trusted partner in performance, training, and recovery.

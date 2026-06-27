@@ -30,19 +30,20 @@ export default function Footer() {
         {/* Quick Links */}
         <div>
           <Typography variant="subtitle1" sx={{ color: "#fff", fontWeight: 700, mb: 2 }}>Quick Links</Typography>
-          {[["Home", "/"], ["Products", "/products"], ["About", "/about"], ["Contact", "/contact"]].map(([label, href]) => (
-            <Link key={href} href={href}
-              className="block text-slate-400 hover:text-orange-400 text-sm mb-1 no-underline transition-colors">
-              {label}
-            </Link>
-          ))}
+            {[['Home','/'],['Products','/products'],['About','/about'],['Contact','/contact'],['FAQ','/faq'],['Terms','/terms'],['Privacy','/privacy']].map(([label, href]) => (
+              <Link key={href} href={href}
+                className="block text-slate-400 hover:text-orange-400 text-sm mb-1 no-underline transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
         </div>
 
         {/* Contact */}
         <div>
           <Typography variant="subtitle1" sx={{ color: "#fff", fontWeight: 700, mb: 2 }}>Contact Us</Typography>
-          <Typography variant="body2" className="mb-1">📍 123 Sport Ave, Athletic City</Typography>
-          <Typography variant="body2" className="mb-1">📞 +1 (555) 000-1234</Typography>
+          <Typography variant="body2" className="mb-1">📍 1234 MG Road, Bengaluru, Karnataka, India – 560001</Typography>
+          <Typography variant="body2" className="mb-1">📞 +91 98765 43210</Typography>
           <Typography variant="body2">✉️ support@skysports.com</Typography>
         </div>
       </div>

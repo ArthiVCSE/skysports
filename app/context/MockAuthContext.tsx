@@ -1,7 +1,8 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import jwtDecode from "jwt-decode";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { jwtDecode } from "jwt-decode";
 import { gql, ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
+import type { JwtPayload } from "@/lib/types/auth";
 
 interface User {
   id: string;
@@ -20,11 +21,18 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-// Apollo client pointing at the GraphQL endpoint
 const client = new ApolloClient({
   link: new HttpLink({ uri: "/api/graphql", credentials: "include" }),
   cache: new InMemoryCache(),
 });
+
+interface LoginMutationResult {
+  login: { token: string };
+}
+
+interface RegisterMutationResult {
+  register: { token: string };
+}
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
@@ -42,36 +50,55 @@ const REGISTER_MUTATION = gql`
   }
 `;
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+function userFromToken(token: string): User | null {
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    return {
+      id: decoded.id,
+      name: decoded.name ?? "",
+      email: decoded.email ?? "",
+      phone: decoded.phone,
+      role: decoded.role,
+    };
+  } catch {
+    return null;
+  }
+}
 
-  // Load token from localStorage on mount
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token);
-        setUser({ id: decoded.id, name: decoded.name, email: decoded.email, phone: decoded.phone, role: decoded.role });
-      } catch {
-        localStorage.removeItem("authToken");
-      }
-    }
-  }, []);
+function readStoredUser(): User | null {
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("authToken");
+  if (!token) return null;
+  const user = userFromToken(token);
+  if (!user) localStorage.removeItem("authToken");
+  return user;
+}
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(readStoredUser);
 
   const login = async (email: string, password: string) => {
-    const { data } = await client.mutate({ mutation: LOGIN_MUTATION, variables: { email, password } });
+    const { data } = await client.mutate<LoginMutationResult>({
+      mutation: LOGIN_MUTATION,
+      variables: { email, password },
+    });
+    if (!data?.login.token) throw new Error("Login failed");
     const token = data.login.token;
     localStorage.setItem("authToken", token);
-    const decoded: any = jwtDecode(token);
-    setUser({ id: decoded.id, name: decoded.name, email: decoded.email, phone: decoded.phone, role: decoded.role });
+    const nextUser = userFromToken(token);
+    if (nextUser) setUser(nextUser);
   };
 
   const register = async (name: string, email: string, password: string, phone?: string) => {
-    const { data } = await client.mutate({ mutation: REGISTER_MUTATION, variables: { name, email, password, phone } });
+    const { data } = await client.mutate<RegisterMutationResult>({
+      mutation: REGISTER_MUTATION,
+      variables: { name, email, password, phone },
+    });
+    if (!data?.register.token) throw new Error("Registration failed");
     const token = data.register.token;
     localStorage.setItem("authToken", token);
-    const decoded: any = jwtDecode(token);
-    setUser({ id: decoded.id, name: decoded.name, email: decoded.email, phone: decoded.phone, role: decoded.role });
+    const nextUser = userFromToken(token);
+    if (nextUser) setUser(nextUser);
   };
 
   const logout = () => {

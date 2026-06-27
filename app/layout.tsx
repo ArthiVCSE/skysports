@@ -1,10 +1,8 @@
-import type { Metadata } from "next";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { CartProvider } from "@/app/context/CartContext";
-import { AuthProvider } from "@/app/context/MockAuthContext";
+import ClientProviders from "@/app/components/ClientProviders";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "SkySports — Premium Sports Gear",
@@ -19,15 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-slate-900">
-        <AppRouterCacheProvider>
-          <AuthProvider>
-            <CartProvider>
-              <Navbar />
-              <div className="flex-1">{children}</div>
-              <Footer />
-            </CartProvider>
-          </AuthProvider>
-        </AppRouterCacheProvider>
+        <ClientProviders>
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   );

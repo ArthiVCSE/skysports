@@ -4,26 +4,22 @@ import Link from "next/link";
 import { Typography, Button, Divider, IconButton, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { products } from "@/lib/data";
-
-const initialCart = [
-  { ...products[0], qty: 1 },
-  { ...products[1], qty: 2 },
-  { ...products[3], qty: 1 },
-];
+import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
-  const [cart, setCart] = useState(initialCart);
+  const { state: { items: cart }, dispatch } = useCart();
   const [coupon, setCoupon] = useState("");
 
-  const updateQty = (id: number, qty: number) => {
-    if (qty < 1) return;
-    setCart(cart.map((i) => (i.id === id ? { ...i, qty } : i)));
+  const updateQty = (id: number, quantity: number) => {
+    if (quantity < 1) return;
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
   };
 
-  const remove = (id: number) => setCart(cart.filter((i) => i.id !== id));
+  const remove = (id: number) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id } });
+  };
 
-  const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const shipping = subtotal > 75 ? 0 : 9.99;
   const total = subtotal + shipping;
 
@@ -59,16 +55,16 @@ export default function CartPage() {
                     <Typography variant="caption" sx={{ color: "#64748b" }}>{item.category}</Typography>
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center border border-slate-600 rounded-lg overflow-hidden text-sm">
-                        <button onClick={() => updateQty(item.id, item.qty - 1)}
+                        <button onClick={() => updateQty(item.id, item.quantity - 1)}
                           className="px-3 py-1 bg-slate-700 hover:bg-slate-600 transition-colors">−</button>
-                        <span className="px-3 py-1">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, item.qty + 1)}
+                        <span className="px-3 py-1">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.id, item.quantity + 1)}
                           className="px-3 py-1 bg-slate-700 hover:bg-slate-600 transition-colors">+</button>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <Typography sx={{ color: "#f97316", fontWeight: 800 }}>₹{(item.price * item.qty).toFixed(2)}</Typography>
+                    <Typography sx={{ color: "#f97316", fontWeight: 800 }}>₹{(item.price * item.quantity).toFixed(2)}</Typography>
                     <Typography variant="caption" sx={{ color: "#64748b" }}>₹{item.price} each</Typography>
                     <div>
                       <IconButton size="small" onClick={() => remove(item.id)} sx={{ color: "#64748b", "&:hover": { color: "#f43f5e" }, mt: 0.5 }}>
@@ -119,10 +115,12 @@ export default function CartPage() {
                 <span className="text-orange-400">₹{total.toFixed(2)}</span>
               </div>
 
-              <Button variant="contained" fullWidth endIcon={<ArrowForwardIcon />} size="large"
-                sx={{ bgcolor: "#f97316", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 3, textTransform: "none", fontWeight: 700 }}>
-                Checkout
-              </Button>
+              <Link href="/checkout" style={{ textDecoration: 'none' }}>
+                <Button variant="contained" fullWidth endIcon={<ArrowForwardIcon />} size="large"
+                  sx={{ bgcolor: "#f97316", "&:hover": { bgcolor: "#ea580c" }, borderRadius: 3, textTransform: "none", fontWeight: 700 }}>
+                  Checkout
+                </Button>
+              </Link>
             </div>
           </div>
         )}

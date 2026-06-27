@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Drawer, List, ListItem, Typography, Button, CircularProgress } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import EmailIcon from "@mui/icons-material/Email";

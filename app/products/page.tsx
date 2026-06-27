@@ -1,9 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Typography, Chip, InputBase, Box, Select, MenuItem } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ProductCard, { Product } from "@/components/ProductCard";
-import { categories } from "@/lib/data";
 
 export default function ProductsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -11,6 +10,11 @@ export default function ProductsPage() {
   const [sort, setSort] = useState("default");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map(p => p.category));
+    return ["All", ...Array.from(cats)];
+  }, [products]);
 
   useEffect(() => {
     fetch("/api/products")

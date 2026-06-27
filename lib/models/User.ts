@@ -19,11 +19,10 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, enum: ["user", "admin"], default: "user" },
 });
 
-UserSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return next();
+UserSchema.pre<IUser>("save", async function () {
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 UserSchema.methods.comparePassword = async function (candidate: string) {

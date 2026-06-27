@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import { Message } from "@/model/Message";
+import { getErrorMessage } from "@/lib/errors";
 
 export async function GET() {
   try {
     await connectDB();
     const messages = await Message.find().sort({ createdAt: -1 });
     return NextResponse.json(messages);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }
 
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     const newMessage = new Message(body);
     await newMessage.save();
     return NextResponse.json(newMessage, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

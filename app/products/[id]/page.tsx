@@ -1,18 +1,37 @@
 "use client";
-import { useState, use } from "react";
-import { notFound } from "next/navigation";
-import { Typography, Button, Rating, Chip, Divider, Tabs, Tab } from "@mui/material";
+import { useState, use, useEffect } from "react";
+import { notFound, useRouter } from "next/navigation";
+import { Typography, Button, Rating, Chip, Divider, Tabs, Tab, CircularProgress } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { products } from "@/lib/data";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const product = products.find((p) => p.id === Number(id));
-  if (!product) notFound();
-
+  const router = useRouter();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState(0);
+
+  useEffect(() => {
+    fetch(`/api/products/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          router.push('/products');
+        } else {
+          setProduct(data);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [id, router]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-slate-900 flex items-center justify-center"><CircularProgress sx={{ color: "#f97316" }} /></div>;
+  }
+
+  if (!product) return null;
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)

@@ -85,7 +85,7 @@ export default function RegisterPage() {
       } else {
         setSuccess(true);
       }
-    } catch (err: any) {
+    } catch {
       setError("An unexpected error occurred.");
     } finally {
       setLoading(false);

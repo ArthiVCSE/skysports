@@ -2,7 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMockAuth } from "@/app/context/MockAuthContext";
+import { useAuth } from "@/app/context/AuthContext";
+// ... unchanged lines up to line 40 ...
+  
 import { Typography, TextField, Button, Divider, Alert, IconButton, InputAdornment } from "@mui/material";
 import SportsIcon from "@mui/icons-material/Sports";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -38,7 +40,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useMockAuth();
+// Hook moved inside component (see below)
+  const { login } = useAuth();
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

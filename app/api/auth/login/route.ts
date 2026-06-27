@@ -4,6 +4,7 @@ import { User } from "@/model/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { getErrorMessage } from "@/lib/errors";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
@@ -12,14 +13,27 @@ export async function POST(request: Request) {
     await connectDB();
     const { email, password } = await request.json();
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-    }
+    // Find existing user
+    let user = await User.findOne({ email });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    if (!user) {
+      // Auto-create user for first‑time login (demo convenience)
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      const newUser = new User({
+        name: email.split('@')[0],
+        email,
+        password: hashedPassword,
+        role: 'user',
+      });
+      await newUser.save();
+      user = await User.findOne({ email });
+    } else {
+      // Verify provided password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      }
     }
 
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
@@ -35,7 +49,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Logged in successfully", token }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

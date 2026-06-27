@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 import { Button, Typography, Chip } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import HeadsetMicIcon from "@mui/icons-material/HeadsetMic";
 import ProductCard, { Product } from "@/components/ProductCard";
-import { categories } from "@/lib/data";
 
 const perks = [
   { icon: <LocalShippingIcon />, title: "Free Shipping", desc: "On orders over ₹75" },
@@ -18,6 +19,14 @@ const perks = [
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && user === null) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     fetch("/api/products")
@@ -31,6 +40,9 @@ export default function HomePage() {
         setLoading(false);
       });
   }, []);
+
+  // Avoid flashing home content while redirecting
+  if (authLoading || user === null) return null;
 
   return (
     <main className="bg-slate-900 min-h-screen text-white">
