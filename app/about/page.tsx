@@ -2,7 +2,7 @@ import { Typography, Chip } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import GroupsIcon from "@mui/icons-material/Groups";
 import PublicIcon from "@mui/icons-material/Public";
-import StarIcon from "@mui/icons-material/Star"; 
+import StarIcon from "@mui/icons-material/Star";
 
 const stats = [
   { icon: <EmojiEventsIcon />, value: "12+", label: "Years of Excellence" },
@@ -12,9 +12,9 @@ const stats = [
 ];
 
 const team = [
-  { name: "Alex Carter", role: "Founder & CEO", imageUrl: "/placeholder.png" },
-  { name: "Maria Silva", role: "Head of Product", imageUrl: "/placeholder.png" },
-  { name: "James Kim", role: "Lead Designer", imageUrl: "/placeholder.png" },
+  { name: "Alex Carter", role: "Founder & CEO", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFb8FWaRs-Vjnj4x9gd1jJxlch6n4QMwioKjCZDZst6w&s=10" },
+  { name: "Maria Silva", role: "Head of Product", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTD0XMoUYKBapMwDMjkZ2qkyaCm9EMFa7xq2sopFY5AYW-7XbAaOtGU2Do&s=10" },
+  { name: "James Kim", role: "Lead Designer", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuqM5fnB6_lUaMYXl40WBAjoDM4i6p_MyYsfR7lVA6FQ&s=10" },
 ];
 
 export default function AboutPage() {
@@ -72,9 +72,9 @@ export default function AboutPage() {
       <section className="py-20 px-6 bg-slate-800/40">
         <div className="max-w-4xl mx-auto text-center">
           <Typography
-  variant="h4"
-  sx={{ fontWeight: 900, mb: 12 }}
-></Typography>
+            variant="h4"
+            sx={{ fontWeight: 900, mb: 12 }}
+          ></Typography>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
             {team.map((m) => (
               <div key={m.name} className="bg-slate-800 border border-slate-700 rounded-2xl p-8 hover:border-orange-500 transition-all flex flex-col items-center">
