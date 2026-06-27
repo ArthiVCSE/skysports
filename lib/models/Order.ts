@@ -15,7 +15,7 @@ export interface IOrder {
   totalAmount: number;
   paymentMethod: "COD";
   deliveryDate?: Date;
-  status: "pending" | "paid" | "shipped" | "delivered";
+  status: "pending" | "processing" | "paid" | "shipped" | "delivered";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,7 +34,7 @@ const OrderSchema = new mongoose.Schema<IOrder>(
     totalAmount: { type: Number, required: true },
     paymentMethod: { type: String, enum: ["COD"], default: "COD" },
     deliveryDate: { type: Date },
-    status: { type: String, enum: ["pending", "paid", "shipped", "delivered"], default: "pending" },
+    status: { type: String, enum: ["pending", "processing", "paid", "shipped", "delivered"], default: "pending" },
   },
   { timestamps: true }
 );

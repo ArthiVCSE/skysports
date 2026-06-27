@@ -19,9 +19,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((res) => {
-        if (res.ok) setAuthenticated(true);
-        else if (pathname !== "/admin") router.push("/admin");
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user?.role === "admin") {
+            setAuthenticated(true);
+            return;
+          }
+        }
+
+        setAuthenticated(false);
+        if (pathname !== "/admin") {
+          router.push("/admin");
+        }
       })
       .finally(() => setLoading(false));
   }, [pathname, router]);

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import { Button, Typography, Chip } from "@mui/material";
@@ -15,10 +15,34 @@ const perks = [
   { icon: <HeadsetMicIcon />, title: "24/7 Support", desc: "Always here to help" },
 ];
 
+const categoryIcons: Record<string, string> = {
+  Footwear: "👟",
+  Football: "⚽",
+  Basketball: "🏀",
+  Tennis: "🎾",
+  Swimming: "🏊",
+  Cycling: "🚴",
+  Fitness: "🏋️",
+  Apparel: "👕",
+};
+
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+
+  const categories = useMemo(() => {
+    const counts = products.reduce<Record<string, number>>((acc, product) => {
+      acc[product.category] = (acc[product.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(counts).map(([label, count]) => ({
+      label,
+      count,
+      emoji: categoryIcons[label] || "🏆",
+    }));
+  }, [products]);
 
   useEffect(() => {
     fetch("/api/products")
@@ -110,21 +134,12 @@ export default function HomePage() {
             Shop by <span style={{ color: "#f97316" }}>Category</span>
           </Typography>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { emoji: "👟", label: "Footwear", count: "120+ items" },
-              { emoji: "⚽", label: "Football", count: "85+ items" },
-              { emoji: "🏀", label: "Basketball", count: "64+ items" },
-              { emoji: "🎾", label: "Tennis", count: "47+ items" },
-              { emoji: "🏊", label: "Swimming", count: "38+ items" },
-              { emoji: "🚴", label: "Cycling", count: "55+ items" },
-              { emoji: "🧘", label: "Fitness", count: "92+ items" },
-              { emoji: "👕", label: "Apparel", count: "200+ items" },
-            ].map((cat) => (
-              <Link key={cat.label} href={`/products?category=${cat.label}`} className="no-underline group">
+            {categories.map((cat) => (
+              <Link key={cat.label} href={`/products?category=${encodeURIComponent(cat.label)}`} className="no-underline group">
                 <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col items-center gap-2 hover:border-orange-500 hover:bg-slate-700/60 transition-all">
                   <span className="text-4xl group-hover:scale-110 transition-transform">{cat.emoji}</span>
                   <Typography variant="subtitle2" sx={{ color: "#e2e8f0", fontWeight: 700 }}>{cat.label}</Typography>
-                  <Typography variant="caption" sx={{ color: "#64748b" }}>{cat.count}</Typography>
+                  <Typography variant="caption" sx={{ color: "#64748b" }}>{cat.count} items</Typography>
                 </div>
               </Link>
             ))}

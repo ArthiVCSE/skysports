@@ -91,10 +91,11 @@ export default function CheckoutPage() {
   }
 
   return (
-    <Box sx={{ p: 4, maxWidth: "sm", mx: "auto", color: "#e2e8f0" }}>
+    <Box sx={{ p: 4, maxWidth: "md", mx: "auto", color: "#e2e8f0" }}>
       <Typography variant="h4" sx={{ mb: 4, color: "#fff", fontWeight: "bold" }}>Checkout</Typography>
       
-      <form onSubmit={handlePlaceOrder}>
+      <Box className="grid grid-cols-1 md:grid-cols-5 gap-6">
+      <form onSubmit={handlePlaceOrder} className="md:col-span-3">
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>Delivery Address</Typography>
           <TextField 
@@ -138,6 +139,27 @@ export default function CheckoutPage() {
           {loading ? "Processing..." : "Place Order (COD)"}
         </Button>
       </form>
+
+      <Box className="md:col-span-2" sx={{ bgcolor: "#0f172a", border: "1px solid #334155", borderRadius: 2, p: 3, height: "fit-content" }}>
+        <Typography variant="h6" sx={{ color: "#fff", fontWeight: 800, mb: 3 }}>Order Summary</Typography>
+        <Box className="space-y-3" sx={{ mb: 3 }}>
+          {cart.map((item) => (
+            <Box key={item.id} className="flex justify-between gap-3">
+              <Box>
+                <Typography sx={{ color: "#e2e8f0", fontWeight: 700 }}>{item.name}</Typography>
+                <Typography variant="caption" sx={{ color: "#64748b" }}>Qty {item.quantity}</Typography>
+              </Box>
+              <Typography sx={{ color: "#fff", fontWeight: 700 }}>₹{(item.price * item.quantity).toFixed(2)}</Typography>
+            </Box>
+          ))}
+        </Box>
+        <Box className="space-y-2" sx={{ borderTop: "1px solid #334155", pt: 2 }}>
+          <Box className="flex justify-between"><Typography sx={{ color: "#94a3b8" }}>Subtotal</Typography><Typography>₹{subtotal.toFixed(2)}</Typography></Box>
+          <Box className="flex justify-between"><Typography sx={{ color: "#94a3b8" }}>Shipping</Typography><Typography>{shipping === 0 ? "Free" : `₹${shipping.toFixed(2)}`}</Typography></Box>
+          <Box className="flex justify-between"><Typography sx={{ color: "#fff", fontWeight: 900 }}>Total</Typography><Typography sx={{ color: "#f97316", fontWeight: 900 }}>₹{total.toFixed(2)}</Typography></Box>
+        </Box>
+      </Box>
+      </Box>
     </Box>
   );
 }

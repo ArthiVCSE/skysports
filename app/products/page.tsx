@@ -1,11 +1,14 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Typography, Chip, InputBase, Box, Select, MenuItem } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ProductCard, { Product } from "@/components/ProductCard";
 
-export default function ProductsPage() {
-  const [activeCategory, setActiveCategory] = useState("All");
+function ProductsBrowser() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedCategory = searchParams.get("category") || "All";
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("default");
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,8 +32,21 @@ export default function ProductsPage() {
       });
   }, []);
 
+  const handleCategoryChange = (category: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (category === "All") {
+      params.delete("category");
+    } else {
+      params.set("category", category);
+    }
+
+    const query = params.toString();
+    router.push(query ? `/products?${query}` : "/products");
+  };
+
   const filtered = products
-    .filter((p) => activeCategory === "All" || p.category === activeCategory)
+    .filter((p) => requestedCategory === "All" || p.category === requestedCategory)
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sort === "price-asc") return a.price - b.price;
@@ -78,15 +94,15 @@ export default function ProductsPage() {
         {/* Category Chips */}
         <div className="flex gap-2 flex-wrap mb-10">
           {categories.map((cat) => (
-            <Chip key={cat} label={cat} onClick={() => setActiveCategory(cat)}
+            <Chip key={cat} label={cat} onClick={() => handleCategoryChange(cat)}
               sx={{
-                bgcolor: activeCategory === cat ? "#f97316" : "#1e293b",
-                color: activeCategory === cat ? "#fff" : "#94a3b8",
+                bgcolor: requestedCategory === cat ? "#f97316" : "#1e293b",
+                color: requestedCategory === cat ? "#fff" : "#94a3b8",
                 border: "1px solid",
-                borderColor: activeCategory === cat ? "#f97316" : "#334155",
-                fontWeight: activeCategory === cat ? 700 : 400,
+                borderColor: requestedCategory === cat ? "#f97316" : "#334155",
+                fontWeight: requestedCategory === cat ? 700 : 400,
                 cursor: "pointer",
-                "&:hover": { bgcolor: activeCategory === cat ? "#ea580c" : "#334155" },
+                "&:hover": { bgcolor: requestedCategory === cat ? "#ea580c" : "#334155" },
               }}
             />
           ))}
@@ -109,5 +125,13 @@ export default function ProductsPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<main className="bg-slate-900 min-h-screen text-white py-12 px-6"><Typography sx={{ color: "#94a3b8" }}>Loading products...</Typography></main>}>
+      <ProductsBrowser />
+    </Suspense>
   );
 }
